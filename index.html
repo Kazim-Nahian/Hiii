@@ -12,9 +12,12 @@
     <header class="bg-[#1e1f20] px-6 py-4 border-b border-gray-800 flex items-center justify-between shadow-md">
         <div class="flex items-center space-x-3">
             <span class="text-2xl">⚡</span>
-            <h1 class="text-xl font-bold tracking-wide bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">Groq AI Chat</h1>
+            <h1 class="text-xl font-bold tracking-wide bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">Kazim's Groq AI Chat</h1>
         </div>
-        <span class="text-xs bg-gray-800 px-3 py-1 rounded-full text-green-400 border border-gray-700">Online</span>
+        <div class="flex items-center space-x-2">
+            <button onclick="resetApiKey()" class="text-xs bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-full text-gray-300 border border-gray-700 transition">Change API Key</button>
+            <span class="text-xs bg-gray-800 px-3 py-1.5 rounded-full text-green-400 border border-gray-700">Online</span>
+        </div>
     </header>
 
     <!-- Chat Container -->
@@ -22,7 +25,7 @@
         <div class="flex items-start space-x-4 max-w-[85%] bg-[#1e1f20] p-4 rounded-2xl border border-gray-800 shadow-sm">
             <div class="bg-green-600 text-white rounded-full h-8 w-8 flex items-center justify-center font-bold text-sm shrink-0">AI</div>
             <div>
-                <p class="text-gray-200 text-sm md:text-base leading-relaxed">আরে দোস্ত! তোর গ্রোক কি দিয়ে চ্যাট অ্যাপ ফুল সেটআপ করা শেষ। এখন যা মনে চায় জিগায় ফেল!</p>
+                <p class="text-gray-200 text-sm md:text-base leading-relaxed">আরে দোস্ত! কি একদম সিকিউরড করে দিয়েছি। এখন আর GitHub কোনো সমস্যা করবে না। কী কথা বলবি বল!</p>
             </div>
         </div>
     </div>
@@ -37,12 +40,28 @@
                 </svg>
             </button>
         </div>
-        <p class="text-center text-xs text-gray-500 mt-2">Powered by Groq Llama 3 Model & Custom Frontend</p>
+        <p class="text-center text-xs text-gray-500 mt-2">Powered by Groq Llama 3 Model & Secure Local Storage</p>
     </div>
 
     <script>
-        // তোর দেওয়া গ্রোক এপিআই কি এখানে বসানো আছে
-        const apiKey = "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"; 
+        // ব্রอนসার ওপেন হওয়ার সাথে সাথে কি চেক করা
+        function getApiKey() {
+            let apiKey = localStorage.getItem("groq_api_key");
+            if (!apiKey) {
+                apiKey = prompt("দোস্ত, তোর Groq API Key টা এখানে দে (গোপন থাকবে, শুধু তোর ব্রাউজারে সেভ হবে):");
+                if (apiKey) {
+                    localStorage.setItem("groq_api_key", apiKey.trim());
+                }
+            }
+            return apiKey;
+        }
+
+        function resetApiKey() {
+            localStorage.removeItem("groq_api_key");
+            alert("এপিআই কি রিসেট করা হয়েছে। পেজটি রিফ্রেশ করলে আবার কি চাইবে।");
+            location.reload();
+        }
+
         const chatContainer = document.getElementById("chat-container");
         const userInput = document.getElementById("user-input");
 
@@ -53,6 +72,12 @@
         }
 
         async function sendMessage() {
+            const apiKey = getApiKey();
+            if (!apiKey) {
+                alert("এপিআই কি ছাড়া চ্যাট করা যাবে না দোস্ত!");
+                return;
+            }
+
             const text = userInput.value.trim();
             if (!text) return;
 
@@ -71,7 +96,10 @@
                     body: JSON.stringify({
                         model: "llama-3.1-8b-instant",
                         messages: [
-                            { role: "system", content: "You are a funny, witty Bangladeshi guy who talks in casual Banglish." },
+                            { 
+                                role: "system", 
+                                content: "You are Kazim's best friend. You are a funny, witty Bangladeshi guy. No matter what language or Banglish the user writes in, you MUST always reply in fluent, casual, friendly Bengali. Act like a true close friend." 
+                            },
                             { role: "user", content: text }
                         ]
                     })
@@ -85,11 +113,11 @@
                     appendMessage(aiReply, 'ai');
                 } else {
                     console.error(data);
-                    appendMessage('আরে দোস্ত, এপিআই থেকে রেসপন্স আসলো না!', 'ai');
+                    appendMessage('আরে দোস্ত, এপিআই কি হয়তো ভুল হয়েছে অথবা কোনো সমস্যা হয়েছে!', 'ai');
                 }
             } catch (error) {
                 console.error(error);
-                appendMessage('নেটওয়ার্ক ফেল করল ভাই!', 'ai');
+                appendMessage('নেটওয়ার্ক ফেল করল ভাই!', 'ai');
             }
         }
 
@@ -118,7 +146,7 @@
             div.innerHTML = `
                 <div class="bg-green-600 text-white rounded-full h-8 w-8 flex items-center justify-center font-bold text-sm shrink-0">AI</div>
                 <div class="bg-[#1e1f20] border border-gray-800 p-4 rounded-2xl text-gray-400 text-sm">
-                    ঝড়ের বেগে চিন্তা করতেছি... ⚡
+                    ঝড়ের বেগে চিন্তা করতেছি... ⚡
                 </div>
             `;
             chatContainer.appendChild(div);
