@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kazim's AI Chat</title>
+    <title>Kazim's Groq AI Chat</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-[#131314] text-white h-screen flex flex-col justify-between font-sans">
@@ -12,36 +12,37 @@
     <header class="bg-[#1e1f20] px-6 py-4 border-b border-gray-800 flex items-center justify-between shadow-md">
         <div class="flex items-center space-x-3">
             <span class="text-2xl">⚡</span>
-            <h1 class="text-xl font-bold tracking-wide bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">Kazim's AI Chat</h1>
+            <h1 class="text-xl font-bold tracking-wide bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">Groq AI Chat</h1>
         </div>
-        <span class="text-xs bg-gray-800 px-3 py-1 rounded-full text-gray-400 border border-gray-700">Online</span>
+        <span class="text-xs bg-gray-800 px-3 py-1 rounded-full text-green-400 border border-gray-700">Online</span>
     </header>
 
     <!-- Chat Container -->
     <div id="chat-container" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 max-w-4xl w-full mx-auto">
         <div class="flex items-start space-x-4 max-w-[85%] bg-[#1e1f20] p-4 rounded-2xl border border-gray-800 shadow-sm">
-            <div class="bg-blue-600 text-white rounded-full h-8 w-8 flex items-center justify-center font-bold text-sm shrink-0">AI</div>
+            <div class="bg-green-600 text-white rounded-full h-8 w-8 flex items-center justify-center font-bold text-sm shrink-0">AI</div>
             <div>
-                <p class="text-gray-200 text-sm md:text-base leading-relaxed">আরে দোস্ত! তোর নতুন AQ এপিআই কি দিয়ে অ্যাপ ফুল রেডি। মেসেজ দে!</p>
+                <p class="text-gray-200 text-sm md:text-base leading-relaxed">আরে দোস্ত! তোর গ্রোক কি দিয়ে চ্যাট অ্যাপ ফুল সেটআপ করা শেষ। এখন যা মনে চায় জিগায় ফেল!</p>
             </div>
         </div>
     </div>
 
     <!-- Input Area -->
     <div class="bg-[#131314] p-4 border-t border-gray-800">
-        <div class="max-w-4xl mx-auto flex items-center bg-[#1e1f20] rounded-full px-4 py-2 border border-gray-700 focus-within:border-blue-500 transition shadow-inner">
+        <div class="max-w-4xl mx-auto flex items-center bg-[#1e1f20] rounded-full px-4 py-2 border border-gray-700 focus-within:border-green-500 transition shadow-inner">
             <input type="text" id="user-input" placeholder="Type a message..." class="flex-1 bg-transparent px-3 py-2 text-white focus:outline-none text-sm md:text-base placeholder-gray-500" onkeypress="handleKeyPress(event)">
-            <button onclick="sendMessage()" class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-2.5 rounded-full hover:opacity-90 transition flex items-center justify-center shadow-md">
+            <button onclick="sendMessage()" class="bg-gradient-to-r from-green-600 to-teal-600 text-white p-2.5 rounded-full hover:opacity-90 transition flex items-center justify-center shadow-md">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"></path>
                 </svg>
             </button>
         </div>
+        <p class="text-center text-xs text-gray-500 mt-2">Powered by Groq Llama 3 Model & Custom Frontend</p>
     </div>
 
     <script>
-        // এখানে তোর AQ দিয়ে শুরু হওয়া ফুল এপিআই কি টা বসিয়ে দিবি
-        const apiKey = "AQ.Ab8RN6LaCYkioByA-_KVXmur1UqeJYZ1laE6Pme-LnXV-4XTqg"; 
+        // তোর দেওয়া গ্রোক এপিআই কি এখানে বসানো আছে
+        const apiKey = "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"; 
         const chatContainer = document.getElementById("chat-container");
         const userInput = document.getElementById("user-input");
 
@@ -61,22 +62,26 @@
             const loadingId = appendLoading();
 
             try {
-                // সরাসরি URL-এর সাথে ?key= দিয়ে রিকোয়েস্ট পাঠানো হচ্ছে
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+                const response = await fetch(`https://api.groq.com/openai/v1/chat/completions`, {
                     method: 'POST',
                     headers: { 
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
                     },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: text }] }]
+                        model: "llama-3.1-8b-instant",
+                        messages: [
+                            { role: "system", content: "You are a funny, witty Bangladeshi guy who talks in casual Banglish." },
+                            { role: "user", content: text }
+                        ]
                     })
                 });
 
                 const data = await response.json();
                 removeLoading(loadingId);
 
-                if (data.candidates && data.candidates[0].content) {
-                    const aiReply = data.candidates[0].content.parts[0].text;
+                if (data.choices && data.choices[0].message) {
+                    const aiReply = data.choices[0].message.content;
                     appendMessage(aiReply, 'ai');
                 } else {
                     console.error(data);
@@ -94,7 +99,7 @@
             div.className = `flex items-start space-x-4 max-w-[85%] ${isUser ? 'ml-auto flex-row-reverse space-x-reverse' : ''} my-4`;
 
             div.innerHTML = `
-                <div class="${isUser ? 'bg-purple-600' : 'bg-blue-600'} text-white rounded-full h-8 w-8 flex items-center justify-center font-bold text-sm shrink-0">
+                <div class="${isUser ? 'bg-purple-600' : 'bg-green-600'} text-white rounded-full h-8 w-8 flex items-center justify-center font-bold text-sm shrink-0">
                     ${isUser ? 'ME' : 'AI'}
                 </div>
                 <div class="${isUser ? 'bg-[#2b2c2d]' : 'bg-[#1e1f20] border border-gray-800'} p-4 rounded-2xl text-gray-200 text-sm md:text-base leading-relaxed shadow-sm">
@@ -111,9 +116,9 @@
             div.id = id;
             div.className = "flex items-start space-x-4 max-w-[85%] animate-pulse my-4";
             div.innerHTML = `
-                <div class="bg-blue-600 text-white rounded-full h-8 w-8 flex items-center justify-center font-bold text-sm shrink-0">AI</div>
+                <div class="bg-green-600 text-white rounded-full h-8 w-8 flex items-center justify-center font-bold text-sm shrink-0">AI</div>
                 <div class="bg-[#1e1f20] border border-gray-800 p-4 rounded-2xl text-gray-400 text-sm">
-                    চিন্তা করতেছি... 💭
+                    ঝড়ের বেগে চিন্তা করতেছি... ⚡
                 </div>
             `;
             chatContainer.appendChild(div);
